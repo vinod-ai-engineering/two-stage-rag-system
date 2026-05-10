@@ -3,27 +3,16 @@
 # TWO STAGE RAG SYSTEM - SIMPLIFIED VERSION
 # ============================================================
 
-# -----------------------------
-# STEP 1 - INSTALL PACKAGES
-# -----------------------------
-# Run once if needed
+"""
+INSTALLATION
 
-# !pip install pandas tiktoken openai pinecone tqdm
+pip install pandas tiktoken openai pinecone-client tqdm
+"""
 
+# ============================================================
+# IMPORT LIBRARIES
+# ============================================================
 
-# -----------------------------
-# STEP 2 - DOWNLOAD DATASET
-# -----------------------------
-
-# !wget -q --show-progress -O all-the-news-3.zip "https://www.dropbox.com/scl/fi/wruzj2bwyg743d0jzd7ku/all-the-news-3.zip?rlkey=rgwtwpeznbdadpv3f01sznwxa&dl=1"
-# !unzip -o all-the-news-3.zip
-
-
-# -----------------------------
-# STEP 3 - IMPORT LIBRARIES
-# -----------------------------
-
-import os
 import time
 import pandas as pd
 
@@ -37,22 +26,26 @@ from openai import OpenAI
 from pinecone import Pinecone, ServerlessSpec
 
 
-# -----------------------------
-# STEP 4 - CONFIGURATION
-# -----------------------------
+# ============================================================
+# CONFIGURATION
+# ============================================================
 
 INDEX_NAME = "global-news-researcher"
+
 NAMESPACE = "__default__"
 
 CSV_PATH = "./all-the-news-3.csv"
 
 EMBED_MODEL = "text-embedding-3-small"
+
 CHAT_MODEL = "gpt-4o"
 
 EMBED_DIMENSION = 1536
 
 TOTAL_ROWS = 1000
+
 READ_CHUNK_SIZE = 100
+
 UPSERT_BATCH_SIZE = 50
 
 MAX_ARTICLE_CHARS = 5000
@@ -60,17 +53,22 @@ MAX_ARTICLE_CHARS = 5000
 RESET_INDEX = False
 
 
-# -----------------------------
-# STEP 5 - API KEYS
-# -----------------------------
+# ============================================================
+# API KEYS
+# ============================================================
 
-OPENAI_API_KEY = getpass("Enter OPENAI_API_KEY: ")
-PINECONE_API_KEY = getpass("Enter PINECONE_API_KEY: ")
+OPENAI_API_KEY = getpass(
+    "Enter OPENAI_API_KEY: "
+)
+
+PINECONE_API_KEY = getpass(
+    "Enter PINECONE_API_KEY: "
+)
 
 
-# -----------------------------
-# STEP 6 - INITIALIZE CLIENTS
-# -----------------------------
+# ============================================================
+# INITIALIZE CLIENTS
+# ============================================================
 
 openai_client = OpenAI(
     api_key=OPENAI_API_KEY
@@ -80,12 +78,14 @@ pc = Pinecone(
     api_key=PINECONE_API_KEY
 )
 
-tokenizer = tiktoken.get_encoding("cl100k_base")
+tokenizer = tiktoken.get_encoding(
+    "cl100k_base"
+)
 
 
-# -----------------------------
-# STEP 7 - CREATE PINECONE INDEX
-# -----------------------------
+# ============================================================
+# CREATE PINECONE INDEX
+# ============================================================
 
 existing_indexes = [
     idx.name
@@ -93,7 +93,9 @@ existing_indexes = [
 ]
 
 if RESET_INDEX and INDEX_NAME in existing_indexes:
+
     pc.delete_index(INDEX_NAME)
+
     time.sleep(10)
 
 if INDEX_NAME not in existing_indexes:
@@ -115,9 +117,9 @@ index = pc.Index(INDEX_NAME)
 print("Pinecone index ready")
 
 
-# -----------------------------
-# STEP 8 - HELPER FUNCTIONS
-# -----------------------------
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
 
 def clean_text(value):
 
@@ -140,9 +142,9 @@ def embed_texts(texts):
     ]
 
 
-# -----------------------------
-# STEP 9 - LOAD DATA INTO PINECONE
-# -----------------------------
+# ============================================================
+# LOAD DATA INTO PINECONE
+# ============================================================
 
 def index_news_articles():
 
@@ -252,9 +254,9 @@ def index_news_articles():
     return total_indexed
 
 
-# -----------------------------
-# STEP 10 - START INDEXING
-# -----------------------------
+# ============================================================
+# START INDEXING
+# ============================================================
 
 total = index_news_articles()
 
@@ -263,18 +265,18 @@ print(
 )
 
 
-# -----------------------------
-# STEP 11 - CHECK INDEX STATUS
-# -----------------------------
+# ============================================================
+# CHECK INDEX STATUS
+# ============================================================
 
 print(
     index.describe_index_stats()
 )
 
 
-# -----------------------------
-# STEP 12 - STAGE 1 RETRIEVAL
-# -----------------------------
+# ============================================================
+# STAGE 1 RETRIEVAL
+# ============================================================
 
 def search_news_titles(
     query,
@@ -299,9 +301,9 @@ def search_news_titles(
     return results
 
 
-# -----------------------------
-# STEP 13 - TEST RETRIEVAL
-# -----------------------------
+# ============================================================
+# TEST RETRIEVAL
+# ============================================================
 
 query = "What happened with Obama?"
 
@@ -341,9 +343,9 @@ for rank, match in enumerate(
     )
 
 
-# -----------------------------
-# STEP 14 - BUILD CONTEXT
-# -----------------------------
+# ============================================================
+# BUILD CONTEXT
+# ============================================================
 
 def build_context(matches):
 
@@ -386,9 +388,9 @@ Content:
     )
 
 
-# -----------------------------
-# STEP 15 - STAGE 2 RAG
-# -----------------------------
+# ============================================================
+# STAGE 2 RAG
+# ============================================================
 
 def ask_news_bot(
     query,
@@ -444,24 +446,27 @@ Question:
     return response.choices[0].message.content
 
 
-# -----------------------------
-# STEP 16 - FINAL TEST
-# -----------------------------
+# ============================================================
+# FINAL TEST
+# ============================================================
 
-question = "What happened with Obama?"
+if __name__ == "__main__":
 
-answer = ask_news_bot(
-    question,
-    top_k=3
-)
+    question = "What happened with Obama?"
 
-print("\n")
-print("=" * 80)
-print("FINAL ANSWER")
-print("=" * 80)
-print("\n")
+    answer = ask_news_bot(
+        question,
+        top_k=3
+    )
 
-print(answer)
+    print("\n")
+    print("=" * 80)
+    print("FINAL ANSWER")
+    print("=" * 80)
+    print("\n")
+
+    print(answer)
+
 
 # ============================================================
 # END
