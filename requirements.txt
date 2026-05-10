@@ -1,0 +1,12 @@
+openai
+pinecone-client
+langchain
+langchain-openai
+langchain-community
+huggingface-hub
+sentence-transformers
+pandas
+numpy
+jupyter
+tiktoken
+python-dotenv
