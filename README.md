@@ -49,7 +49,7 @@ LLM Response Generation
 | Pinecone         | Vector Database   |
 | Hugging Face     | NLP / Datasets    |
 | LangChain        | RAG Orchestration |
-| Jupyter Notebook | Experimentation   |
+| Python Script    | AI Pipeline       |
 
 ---
 
