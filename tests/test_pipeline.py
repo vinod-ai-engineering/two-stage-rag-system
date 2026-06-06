@@ -1,11 +1,11 @@
-from types import SimpleNamespace
+import pytest
 
 from news_rag.pipeline import NewsRAGPipeline
 
 
 class FakeRetriever:
-    def search(self, query, top_k=3):
-        return [SimpleNamespace(score=0.9, metadata={"title": "T", "article_content": "C"})]
+    def search(self, query: str, top_k: int = 3):
+        return []
 
 
 class FakeContextBuilder:
@@ -14,10 +14,16 @@ class FakeContextBuilder:
 
 
 class FakeGenerator:
-    def generate(self, query, context):
-        return f"answer for {query} using {context}"
+    def generate(self, query: str, context: str):
+        return "answer"
 
 
-def test_pipeline_returns_answer():
+def test_pipeline_returns_no_results_message():
     pipeline = NewsRAGPipeline(FakeRetriever(), FakeContextBuilder(), FakeGenerator())
-    assert pipeline.answer("question") == "answer for question using context"
+    assert pipeline.answer("unknown") == "No relevant articles found."
+
+
+def test_pipeline_rejects_empty_query():
+    pipeline = NewsRAGPipeline(FakeRetriever(), FakeContextBuilder(), FakeGenerator())
+    with pytest.raises(ValueError):
+        pipeline.answer("")

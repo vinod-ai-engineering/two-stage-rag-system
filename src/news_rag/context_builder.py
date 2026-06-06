@@ -1,5 +1,5 @@
 class ContextBuilder:
-    """Stage 2: turn retrieval matches into controlled LLM context."""
+    """Builds grounded context blocks from retrieved Pinecone matches."""
 
     def build(self, matches) -> str:
         context_blocks = []

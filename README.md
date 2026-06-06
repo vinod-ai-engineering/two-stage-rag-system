@@ -65,6 +65,21 @@ This version uses a pragmatic two-stage retrieval pattern:
 | Testing | pytest |
 | DevOps | GitHub Actions, Docker |
 
+## What makes this production-style
+
+This project was refactored from a notebook-style prototype into a reusable engineering repo with:
+
+- Modular Python package structure
+- CLI scripts for ingestion and querying
+- FastAPI endpoint for serving answers
+- Streamlit demo interface
+- Environment-based configuration
+- Docker support
+- GitHub Actions CI workflow
+- Unit tests for core logic
+- Architecture and design documentation
+- QA strategy for GenAI-specific risks
+
 ## Project structure
 
 ```text
@@ -75,11 +90,35 @@ two-stage-rag-system/
 ├── tests/                     # Unit tests
 ├── docs/                      # Architecture, design, QA, limitations
 ├── images/                    # Architecture and demo screenshots
+├── data/                      # Local dataset location; CSV is not committed
 ├── .github/workflows/         # CI pipeline
 ├── .env.example               # Environment variable template
 ├── Dockerfile                 # Container build
 └── README.md
 ```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Design Decisions](docs/DESIGN_DECISIONS.md)
+- [QA Test Strategy](docs/QA_TEST_STRATEGY.md)
+- [Evaluation Plan](docs/EVALUATION.md)
+- [Limitations](docs/LIMITATIONS.md)
+- [LinkedIn Case Study](docs/LINKEDIN_CASE_STUDY.md)
+
+## Dataset note
+
+The dataset file is not committed to this repository. Users should download the news CSV separately and update `NEWS_CSV_PATH` in `.env`.
+
+Expected columns include:
+
+- `title`
+- `article`
+- `url`
+- `publication`
+- `date`
+- `section`
+- `author`
 
 ## Setup
 
@@ -118,6 +157,13 @@ PINECONE_API_KEY=your_pinecone_api_key
 NEWS_CSV_PATH=./data/all-the-news-3.csv
 ```
 
+Before running ingestion, make sure:
+
+- `.env` is configured
+- Pinecone API key is valid
+- OpenAI API key is valid
+- `NEWS_CSV_PATH` points to an existing CSV file
+
 ## Run ingestion
 
 ```bash
@@ -153,15 +199,18 @@ streamlit run app/streamlit_app.py
 ## Example output
 
 ```text
-Question: What happened with Obama?
+Question:
+What happened with Obama?
 
 Answer:
-Based on the retrieved articles, the available context discusses Obama in relation to ...
+Based on the retrieved article context, the system found articles discussing Obama in relation to political events and public statements. The answer is generated only from the retrieved article snippets. If the retrieved context is incomplete, the assistant is instructed to say that the available articles do not provide enough information.
 
 Sources:
-- Article title 1, Publication, Date
-- Article title 2, Publication, Date
+1. "Example Article Title", Publication, Date
+2. "Example Article Title", Publication, Date
 ```
+
+Replace the example above with a real run output after indexing your local dataset.
 
 ## Testing
 

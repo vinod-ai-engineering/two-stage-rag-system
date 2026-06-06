@@ -4,14 +4,13 @@ from news_rag.config import Settings
 
 
 class AnswerGenerator:
-    """LLM answer generation with a strict grounded-answer prompt."""
+    """Generates grounded answers using retrieved context."""
 
     SYSTEM_PROMPT = """
 You are a careful news research assistant.
 Answer the user's question using only the provided context.
 If the context is not enough, say that the available articles do not provide enough information.
-Mention article titles, publications, or dates when useful.
-Do not use outside knowledge.
+Mention article titles or sources when useful.
 """.strip()
 
     def __init__(self, client: OpenAI, settings: Settings):
@@ -27,4 +26,4 @@ Do not use outside knowledge.
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{query}"},
             ],
         )
-        return response.choices[0].message.content
+        return response.choices[0].message.content or "No answer generated."

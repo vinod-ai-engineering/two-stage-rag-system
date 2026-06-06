@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 from tqdm.auto import tqdm
@@ -12,13 +12,24 @@ from news_rag.utils import fit_metadata, safe_text, truncate_by_tokens
 class NewsIndexer:
     """Builds Pinecone records and upserts title embeddings with article metadata."""
 
-    def __init__(self, index, embedder: OpenAIEmbedder, loader: NewsDataLoader, settings: Settings):
+    def __init__(
+        self,
+        index,
+        embedder: OpenAIEmbedder,
+        loader: NewsDataLoader,
+        settings: Settings,
+    ):
         self.index = index
         self.embedder = embedder
         self.loader = loader
         self.settings = settings
 
-    def build_record(self, row_id: int, row: pd.Series, title_vector: List[float]) -> Dict[str, Any]:
+    def build_record(
+        self,
+        row_id: int,
+        row: pd.Series,
+        title_vector: list[float],
+    ) -> dict[str, Any]:
         title = safe_text(row.get("title"))
         article = safe_text(row.get("article"))
         article = truncate_by_tokens(article, self.settings.max_embed_tokens)
@@ -60,14 +71,18 @@ class NewsIndexer:
 
             titles = [item["title"] for item in prepared_rows]
             title_vectors = self.embedder.embed_texts(titles)
+
             records = [
                 self.build_record(item["row_id"], item["row"], vector)
-                for item, vector in zip(prepared_rows, title_vectors)
+                for item, vector in zip(prepared_rows, title_vectors, strict=False)
             ]
 
             for start in range(0, len(records), self.settings.upsert_batch_size):
                 batch = records[start : start + self.settings.upsert_batch_size]
-                self.index.upsert(vectors=batch, namespace=self.settings.pinecone_namespace)
+                self.index.upsert(
+                    vectors=batch,
+                    namespace=self.settings.pinecone_namespace,
+                )
                 total_indexed += len(batch)
 
         return total_indexed

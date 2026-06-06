@@ -1,7 +1,7 @@
 from news_rag.factory import build_indexer
 
 
-def main():
+def main() -> None:
     indexer = build_indexer()
     total = indexer.ingest()
     print(f"Total records indexed: {total}")

@@ -6,7 +6,7 @@ from news_rag.config import Settings
 
 
 class NewsDataLoader:
-    """Reads news CSV data in chunks so ingestion can scale beyond notebook demos."""
+    """Reads news CSV data in chunks to keep ingestion memory-friendly."""
 
     def __init__(self, settings: Settings):
         self.settings = settings

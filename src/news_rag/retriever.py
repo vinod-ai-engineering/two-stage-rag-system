@@ -3,7 +3,7 @@ from news_rag.embedder import OpenAIEmbedder
 
 
 class NewsRetriever:
-    """Stage 1: retrieve top candidate articles from Pinecone."""
+    """Retrieves candidate news articles from Pinecone using title-vector search."""
 
     def __init__(self, index, embedder: OpenAIEmbedder, settings: Settings):
         self.index = index
@@ -11,11 +11,8 @@ class NewsRetriever:
         self.settings = settings
 
     def search(self, query: str, top_k: int = 3):
-        query = query.strip()
-        if not query:
-            raise ValueError("Query cannot be empty.")
-
         query_vector = self.embedder.embed_texts([query])[0]
+
         results = self.index.query(
             vector=query_vector,
             top_k=top_k,

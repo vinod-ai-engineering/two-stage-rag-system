@@ -3,10 +3,10 @@ import argparse
 from news_rag.factory import build_pipeline
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Ask the News RAG pipeline a question.")
-    parser.add_argument("question", type=str)
-    parser.add_argument("--top-k", type=int, default=3)
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Ask a question against the news RAG pipeline.")
+    parser.add_argument("question", help="Question to ask")
+    parser.add_argument("--top-k", type=int, default=3, help="Number of articles to retrieve")
     args = parser.parse_args()
 
     pipeline = build_pipeline()

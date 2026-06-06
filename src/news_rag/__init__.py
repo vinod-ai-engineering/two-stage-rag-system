@@ -1,5 +1,3 @@
-"""Reusable package for the News Research RAG pipeline."""
+"""AI News Research Assistant package."""
 
-from news_rag.pipeline import NewsRAGPipeline
-
-__all__ = ["NewsRAGPipeline"]
+__version__ = "0.1.0"
