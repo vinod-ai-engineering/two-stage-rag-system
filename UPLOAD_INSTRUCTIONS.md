@@ -1,24 +1,28 @@
 # Upload Instructions
 
-Go to:
-https://github.com/vinod-ai-engineering/two-stage-rag-system
+## Option 1: Replace current repo contents from local machine
 
-Upload these files:
-1. README.md
-2. requirements.txt
-3. .gitignore
+```bash
+git clone https://github.com/vinod-ai-engineering/two-stage-rag-system.git
+cd two-stage-rag-system
 
-Recommended repository description:
-Advanced Retrieval-Augmented Generation pipeline with two-stage retrieval and context refinement.
+# Copy the generated files into this folder, then:
+git add .
+git commit -m "Redesign RAG project into production-style repo"
+git push origin main
+```
 
-Recommended GitHub topics:
-rag
-genai
-llm
-pinecone
-semantic-search
-retrieval-augmented-generation
-openai
-langchain
-vector-database
-ai-engineering
+## Option 2: Create a new branch first
+
+```bash
+git checkout -b repo-redesign
+git add .
+git commit -m "Redesign RAG project structure and documentation"
+git push origin repo-redesign
+```
+
+Then open a Pull Request in GitHub and review changes before merging.
+
+## Important
+
+Do not commit `.env`, API keys, dataset files, or notebook checkpoints.

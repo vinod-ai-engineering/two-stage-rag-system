@@ -1,129 +1,211 @@
-# Two-Stage RAG System
+# AI News Research Assistant — Two-Stage RAG Pipeline
 
-## Overview
+A production-style Retrieval-Augmented Generation project that uses OpenAI embeddings, Pinecone vector search, and a grounded LLM response layer to answer questions from a news article dataset.
 
-An advanced Retrieval-Augmented Generation (RAG) pipeline implementing a multi-stage retrieval architecture for improved semantic search accuracy and context relevance.
+> Portfolio goal: show practical GenAI engineering, RAG design, vector database usage, prompt grounding, and QA thinking for AI systems.
 
-This project demonstrates how modern AI systems can optimize information retrieval before passing context into Large Language Models (LLMs), reducing hallucinations and improving response quality.
+![Architecture](images/architecture.png)
 
----
+## Why this project exists
 
-## Key Features
+LLMs can sound confident even when they do not have the right context. This project reduces that risk by retrieving relevant news articles first, constructing controlled context, and instructing the LLM to answer only from retrieved data.
 
-* Multi-stage retrieval pipeline
-* Semantic vector search
-* Context refinement
-* Improved retrieval precision
-* Reduced noisy context
-* Scalable RAG architecture
-* Pinecone vector database integration
-* OpenAI embeddings
-* Hugging Face support
-
----
-
-## Architecture
+## What the system does
 
 ```text
-User Query
-    ↓
-Embedding Generation
-    ↓
-Initial Vector Retrieval
-    ↓
-Re-ranking / Context Refinement
-    ↓
-Relevant Context Selection
-    ↓
-LLM Response Generation
+News CSV Dataset
+      ↓
+Data Loader
+      ↓
+Title Embedding Generation
+      ↓
+Pinecone Vector Index
+      ↓
+User Question
+      ↓
+Query Embedding
+      ↓
+Stage 1: Candidate Article Retrieval
+      ↓
+Stage 2: Context Construction from Retrieved Articles
+      ↓
+LLM Answer Generation
+      ↓
+Grounded News Research Response
 ```
 
----
+## Current implementation
 
-## Tech Stack
+This version uses a pragmatic two-stage retrieval pattern:
 
-| Technology       | Purpose           |
-| ---------------- | ----------------- |
-| Python           | Core Development  |
-| OpenAI           | Embeddings / LLM  |
-| Pinecone         | Vector Database   |
-| Hugging Face     | NLP / Datasets    |
-| LangChain        | RAG Orchestration |
-| Python Script    | AI Pipeline       |
+1. **Stage 1 — Candidate Retrieval**
+   - Embeds article titles using OpenAI embeddings.
+   - Stores title vectors in Pinecone.
+   - Converts the user question into an embedding.
+   - Retrieves top matching article candidates.
 
----
+2. **Stage 2 — Context Construction + Answer Generation**
+   - Pulls article metadata and article snippets from Pinecone results.
+   - Builds a grounded context block.
+   - Sends the context and user question to the LLM.
+   - Instructs the model to answer only from the retrieved context.
 
-## Why Two-Stage RAG?
+## Tech stack
 
-Traditional RAG systems often retrieve noisy or partially relevant chunks.
+| Area | Technology |
+|---|---|
+| Language | Python |
+| Embeddings | OpenAI `text-embedding-3-small` |
+| LLM | OpenAI chat model |
+| Vector database | Pinecone Serverless |
+| Data processing | pandas |
+| Token handling | tiktoken |
+| API layer | FastAPI |
+| Demo UI | Streamlit |
+| Testing | pytest |
+| DevOps | GitHub Actions, Docker |
 
-This implementation improves retrieval quality by introducing:
-
-1. Initial semantic retrieval
-2. Secondary refinement/re-ranking phase
-
-Benefits include:
-
-* Better response relevance
-* Improved context accuracy
-* Reduced hallucinations
-* More precise retrieval
-
----
-
-## Repository Structure
+## Project structure
 
 ```text
 two-stage-rag-system/
-│
-├── notebooks/
-│   └── two_stage_rag.ipynb
-│
-├── images/
-│
-├── docs/
-│
-├── src/
-│
-├── README.md
-├── requirements.txt
-└── .gitignore
+├── src/news_rag/              # Core reusable RAG package
+├── app/                       # FastAPI and Streamlit interfaces
+├── scripts/                   # CLI scripts for ingest/query/evaluation
+├── tests/                     # Unit tests
+├── docs/                      # Architecture, design, QA, limitations
+├── images/                    # Architecture and demo screenshots
+├── .github/workflows/         # CI pipeline
+├── .env.example               # Environment variable template
+├── Dockerfile                 # Container build
+└── README.md
 ```
 
----
+## Setup
 
-## Installation
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/vinod-ai-engineering/two-stage-rag-system.git
-
 cd two-stage-rag-system
+```
 
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\activate   # Windows
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
----
+### 4. Configure environment variables
 
-## Future Improvements
+```bash
+cp .env.example .env
+```
 
-* Hybrid search
-* Metadata filtering
-* LLM response evaluation
-* Streaming responses
-* FastAPI deployment
-* Docker containerization
-* AWS ECS deployment
+Update `.env`:
 
----
+```bash
+OPENAI_API_KEY=your_openai_api_key
+PINECONE_API_KEY=your_pinecone_api_key
+NEWS_CSV_PATH=./data/all-the-news-3.csv
+```
 
-## Author
+## Run ingestion
 
-Vinod Kumar
+```bash
+python scripts/ingest_news.py
+```
 
-AI-Powered Quality Engineer focused on:
+## Ask a question from CLI
 
-* GenAI
-* Intelligent Automation
-* Retrieval-Augmented Generation (RAG)
-* LLM Workflows
-* AI-Driven Testing
+```bash
+python scripts/ask_question.py "What happened with Obama?"
+```
+
+## Run FastAPI
+
+```bash
+uvicorn app.api:app --reload
+```
+
+Example request:
+
+```bash
+curl -X POST http://127.0.0.1:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What happened with Obama?", "top_k":3}'
+```
+
+## Run Streamlit demo
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+## Example output
+
+```text
+Question: What happened with Obama?
+
+Answer:
+Based on the retrieved articles, the available context discusses Obama in relation to ...
+
+Sources:
+- Article title 1, Publication, Date
+- Article title 2, Publication, Date
+```
+
+## Testing
+
+```bash
+pytest -q
+```
+
+## QA mindset applied to GenAI
+
+This project includes a RAG-specific QA strategy covering:
+
+- Retrieval relevance
+- Groundedness
+- Hallucination risk
+- Prompt injection resistance
+- API failure paths
+- Empty/invalid input handling
+- Metadata-size constraints
+- Token-limit safety
+
+See [`docs/QA_TEST_STRATEGY.md`](docs/QA_TEST_STRATEGY.md).
+
+## Current limitations
+
+This repo is intentionally honest about tradeoffs:
+
+- Current retrieval uses title embeddings, not full article chunk embeddings.
+- Article content is stored as metadata snippets.
+- No production reranker is included yet.
+- Dataset download is not bundled because the source data may have license restrictions.
+- Evaluation is lightweight and should be expanded before production use.
+
+See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+
+## Roadmap
+
+- Add article body chunking.
+- Add hybrid dense + sparse retrieval.
+- Add LLM or cross-encoder reranking.
+- Add source citation formatting.
+- Add retrieval evaluation metrics: Recall@K, Precision@K, MRR.
+- Add Docker deployment example.
+- Add hosted demo screenshots.
+
+## Portfolio summary
+
+This project demonstrates the ability to convert a notebook-style RAG prototype into a production-style AI engineering repo with modular code, documentation, testing, and deployment-ready structure.

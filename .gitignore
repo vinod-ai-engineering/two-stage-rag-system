@@ -1,26 +1,9 @@
-```text
-# Environment variables
 .env
-.env.local
-
-# Python cache
+.venv/
 __pycache__/
 *.pyc
-
-# Virtual environments
-venv/
-.venv/
-
-# Jupyter
 .ipynb_checkpoints/
-
-# OS files
+data/
 .DS_Store
-Thumbs.db
-
-# VS Code
-.vscode/
-
-# Logs
-*.log
-```
+.pytest_cache/
+.ruff_cache/

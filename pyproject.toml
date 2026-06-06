@@ -1,0 +1,13 @@
+[project]
+name = "news-rag-assistant"
+version = "0.1.0"
+description = "Two-stage RAG pipeline for news research using OpenAI and Pinecone"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "app", "scripts", "tests"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
